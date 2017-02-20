@@ -38,25 +38,29 @@ void agent::move(vector<square>* pboard){ // will accept movement commands, cann
     if( input == 0 && ypos != pboard->back().y){
         ypos ++;
     }
-    else if(input == 0 && ypos == pboard->back().y){
+    else if(input == 0 && ypos >= pboard->back().y){
          cout << "Cannot move up, at the top of the board" << endl;
+        ypos = pboard->back().y;
     }
     if(input ==1 && ypos != pboard->front().y){
         ypos --;
     }
-    else if(input == 1 && ypos == pboard->front().y){
+    else if(input == 1 && xpos <= pboard->front().x){
         cout << "Cannot move down, at the bottom of the board" << endl;
+        xpos = pboard->front().x;
     }
     if(input == 2 && ypos != pboard->front().x){
         xpos -- ;
     }
-    else if(input == 2 && xpos == pboard->front().x){
+    else if(input == 2 && xpos <= pboard->front().x){
         cout << "Cannot move left, at the left of the board" << endl;
+        xpos = pboard->front().x;
     }
     if(input == 3 && ypos != pboard->back().x){
         xpos ++;
     }
-    else if(input == 3 && xpos == pboard->back().x){
+    else if(input == 3 && xpos >= pboard->back().x){
+        xpos = pboard->back().x;
         cout << "Cannot move right, at the right of the board" << endl;
     }
     /*else{
