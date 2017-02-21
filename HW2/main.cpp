@@ -30,42 +30,65 @@ public:
     int input;
     bool win = false;
     
+    int choice(vector<square>* pboard);
     void move(vector<square>* pboard);
     void eval(vector<square>* pboard);
 };
 
 void agent::move(vector<square>* pboard){ // will accept movement commands, cannot deal with edges yet.
-    if( input == 0 && ypos != pboard->back().y){
-        ypos ++;
+    if(input == 0){
+        if(ypos == pboard->back().y){
+            cout << "Cannot move up, at the top of the board" << endl;
+            ypos = pboard->back().y;
+        }
+        else{
+            ypos++;
+        }
     }
-    else if(input == 0 && ypos >= pboard->back().y){
-         cout << "Cannot move up, at the top of the board" << endl;
-        ypos = pboard->back().y;
+    if( input == 1){
+        if(ypos == pboard->front().y){
+            cout << "Cannot move down, at the bottom of the board" << endl;
+            ypos = pboard->front().y;
+        }
+        else{
+            ypos -- ;
+        }
     }
-    if(input ==1 && ypos != pboard->front().y){
-        ypos --;
+    if( input == 2){
+        if(xpos == pboard->front().x){
+            cout << "Cannot move left, at the left of the board" << endl;
+            xpos = pboard->front().x;
+        }
+        else{
+            xpos -- ;
+        }
     }
-    else if(input == 1 && xpos <= pboard->front().x){
-        cout << "Cannot move down, at the bottom of the board" << endl;
-        xpos = pboard->front().x;
+    if( input == 3){
+        if(xpos == pboard->back().x){
+            cout << "Cannot move right, at the right of the board" << endl;
+            xpos = pboard->back().x;
+        }
+        else{
+            xpos ++ ;
+        }
     }
-    if(input == 2 && ypos != pboard->front().x){
-        xpos -- ;
+}
+
+int agent::choice(vector<square>* pboard){
+    int input=0;
+    if(pboard->at(0).goalx > xpos){ // robot is left of goal
+        input = 3;
     }
-    else if(input == 2 && xpos <= pboard->front().x){
-        cout << "Cannot move left, at the left of the board" << endl;
-        xpos = pboard->front().x;
+    if(pboard->at(0).goalx < xpos){ // robot is right of goal
+        input = 2;
     }
-    if(input == 3 && ypos != pboard->back().x){
-        xpos ++;
+    if(pboard->at(0).goaly > ypos){ // robot is below goal
+        input = 0;
     }
-    else if(input == 3 && xpos >= pboard->back().x){
-        xpos = pboard->back().x;
-        cout << "Cannot move right, at the right of the board" << endl;
+    if(pboard->at(0).goaly < ypos){ // robot is above goal
+        input = 1;
     }
-    /*else{
-        cout << "Incorrect input specified" << endl;
-    }*/
+    return input;
 }
 
 void agent::eval(vector<square>* pboard){
@@ -87,12 +110,15 @@ void createboard(vector<square>* pboard, int x, int y){
     tsq.goalx=3;//rand()%x;
     tsq.goaly=4;//rand()%y;
     for(int i=0; i<x; i++){
-        for( int j=0; j<y; j++){
-            tsq.x=i;
-            tsq.y=j;
-            pboard->push_back(tsq);
-        }
+        tsq.x=i;
+        pboard->push_back(tsq);
     }
+    for( int j=0; j<y; j++){
+        tsq.y=j;
+        pboard->push_back(tsq);
+        
+    }
+    cout << pboard->front().x << "\t" << pboard->back().x << endl;
 }
 
 int inputchoice(){ //user input choice
@@ -116,8 +142,8 @@ int main(){
     cout << "before while loop" << endl;
     while(notwinner != robot.win){
         robot.eval(pboard);
-        int choice = inputchoice();
-        robot.input=choice;
+        //int choice = inputchoice();
+        robot.input=robot.choice(pboard);
         robot.move(pboard);
         robot.eval(pboard);
         cout << " Goal coords are  " << pboard->at(0).goalx << ", " << pboard->at(0).goaly << endl;
