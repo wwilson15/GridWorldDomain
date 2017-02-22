@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <fstream>
 
+#define LYRAND (double)rand()/RAND_MAX
+
 using namespace::std;
 
 class square{
@@ -24,8 +26,8 @@ public:
 
 class agent{
 public:
-    int xpos = 0;
-    int ypos = 0;
+    int xpos = rand()%10;
+    int ypos = rand()%10;
     double areward;
     int input;
     bool win = false;
@@ -33,12 +35,20 @@ public:
     int choice(vector<square>* pboard);
     void move(vector<square>* pboard);
     void eval(vector<square>* pboard);
+    void check(vector<square>* pboard);
 };
 
-void agent::move(vector<square>* pboard){ // will accept movement commands, cannot deal with edges yet.
+class body{
+public:
+    int xpos;
+    int ypos;
+    
+};
+
+void agent::move(vector<square>* pboard){ // will accept movement commands
     if(input == 0){
-        if(ypos == pboard->back().y){
-            cout << "Cannot move up, at the top of the board" << endl;
+        if(ypos >= pboard->back().y){
+            cout << "*Cannot move up, at the top of the board" << endl;
             ypos = pboard->back().y;
         }
         else{
@@ -46,8 +56,8 @@ void agent::move(vector<square>* pboard){ // will accept movement commands, cann
         }
     }
     if( input == 1){
-        if(ypos == pboard->front().y){
-            cout << "Cannot move down, at the bottom of the board" << endl;
+        if(ypos <= pboard->front().y){
+            cout << "*Cannot move down, at the bottom of the board" << endl;
             ypos = pboard->front().y;
         }
         else{
@@ -55,8 +65,8 @@ void agent::move(vector<square>* pboard){ // will accept movement commands, cann
         }
     }
     if( input == 2){
-        if(xpos == pboard->front().x){
-            cout << "Cannot move left, at the left of the board" << endl;
+        if(xpos <= pboard->front().x){
+            cout << "*Cannot move left, at the left of the board" << endl;
             xpos = pboard->front().x;
         }
         else{
@@ -64,13 +74,28 @@ void agent::move(vector<square>* pboard){ // will accept movement commands, cann
         }
     }
     if( input == 3){
-        if(xpos == pboard->back().x){
-            cout << "Cannot move right, at the right of the board" << endl;
+        if(xpos >= pboard->back().x){
+            cout << "*Cannot move right, at the right of the board" << endl;
             xpos = pboard->back().x;
         }
         else{
             xpos ++ ;
         }
+    }
+}
+
+void agent::check(vector<square>* pboard){
+    if(xpos >= pboard->back().x){
+        xpos = pboard->back().x;
+    }
+    if(xpos <= pboard->front().x){
+        xpos = pboard->front().x;
+    }
+    if(ypos <= pboard->front().y){
+        ypos = pboard->front().y;
+    }
+    if(ypos >= pboard->back().y){
+        ypos = pboard->back().y;
     }
 }
 
@@ -118,7 +143,7 @@ void createboard(vector<square>* pboard, int x, int y){
         pboard->push_back(tsq);
         
     }
-    cout << pboard->front().x << "\t" << pboard->back().x << endl;
+    //cout << pboard->front().x << "\t" << pboard->back().x << endl;
 }
 
 int inputchoice(){ //user input choice
@@ -128,26 +153,78 @@ int inputchoice(){ //user input choice
     return input;
 }
 
+void testA(int x, int y){
+    vector<square> board;
+    vector<square>* pboard = &board;
+    createboard(pboard, x, y);
+    agent agenta;
+    if(LYRAND > .5){
+        agenta.ypos=rand()+pboard->back().y;
+    }
+    else{
+        agenta.ypos=-rand();
+    }
+    if(LYRAND > .5){
+        agenta.xpos=rand()+pboard->back().x;
+    }
+    else{
+        agenta.xpos=-rand();
+    }
+    cout << "////// Test A" << endl;
+    cout << "Robot coords before reposition: " << agenta.xpos << "\t" << agenta.ypos << endl;
+    agenta.check(pboard);
+    cout << "Robot coords after reposition: " << agenta.xpos << "\t" << agenta.ypos << endl;
+    //need an assert?
+}
+
+void testB(int x, int y){
+    vector<square> board;
+    vector<square>* pboard = &board;
+    agent robot;
+    createboard(pboard, x, y);
+    bool notwinner = true;
+    cout << "////// Test B, guide the robot to the goal" << endl;
+    while(notwinner != robot.win){
+        robot.check(pboard);
+        cout << " Goal coords are  " << pboard->at(0).goalx << ", " << pboard->at(0).goaly << endl;
+        cout << "Agent is at  " << robot.xpos << ", " << robot.ypos << endl;
+        robot.eval(pboard);
+        int choice = inputchoice();
+        robot.input=choice;
+        robot.move(pboard);
+        robot.eval(pboard);
+        robot.check(pboard);
+
+    }
+    cout << "Winner" << endl;
+}
+
+void testC(int x, int y){
+    vector<square> board;
+    vector<square>* pboard = &board;
+    agent robot;
+    createboard(pboard, x, y);
+    bool notwinner = true;
+    cout << "////// Test C, Robot will guide itself to the goal" << endl;
+    while(notwinner != robot.win){
+        robot.check(pboard);
+        robot.eval(pboard);
+        robot.input=robot.choice(pboard);
+        robot.move(pboard);
+        robot.eval(pboard);
+        robot.check(pboard);
+        cout << " Goal coords are  " << pboard->at(0).goalx << ", " << pboard->at(0).goaly << endl;
+        cout << "Agent is at  " << robot.xpos << ", " << robot.ypos << endl;
+    }
+    cout << "Winner" << endl;
+}
+
 int main(){
     cout << "main start" << endl;
     srand(time(NULL));
     int x=10;
     int y=10;
-    vector<square> board;
-    vector<square>* pboard = &board;
-    agent robot;
-    //agent *probot = &robot;  // need a pointer to the robot?
-    createboard(pboard, x, y);
-    bool notwinner = true;
-    cout << "before while loop" << endl;
-    while(notwinner != robot.win){
-        robot.eval(pboard);
-        //int choice = inputchoice();
-        robot.input=robot.choice(pboard);
-        robot.move(pboard);
-        robot.eval(pboard);
-        cout << " Goal coords are  " << pboard->at(0).goalx << ", " << pboard->at(0).goaly << endl;
-        cout << "Agent is at  " << robot.xpos << ", " << robot.ypos << endl;
-    }
-    cout << "Winner" << endl;
+    testA(x,y);
+    testB(x,y);
+    testC(x,y);
 }
