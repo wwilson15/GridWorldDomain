@@ -183,19 +183,25 @@ void testB(int x, int y, vector<square>* pboard){
     bool notwinner = true;
     cout << "////// Test B, guide the robot to the goal" << endl;
     //cout<< pboard->front().y << endl;
+            cout << " Goal coords are  " << pboard->at(0).goalx << ", " << pboard->at(0).goaly << endl;
+    cout << "Agent is at  " << robot.xpos << ", " << robot.ypos << endl;
     while(notwinner != robot.win){
         robot.check(pboard);
-        cout << " Goal coords are  " << pboard->at(0).goalx << ", " << pboard->at(0).goaly << endl;
-        cout << "Agent is at  " << robot.xpos << ", " << robot.ypos << endl;
+        //cout << " Goal coords are  " << pboard->at(0).goalx << ", " << pboard->at(0).goaly << endl;
+        //cout << "Agent is at  " << robot.xpos << ", " << robot.ypos << endl;
         robot.eval(pboard);
         int choice = inputchoice();
         robot.input=choice;
         robot.move(pboard);
+        cout << " Goal coords are  " << pboard->at(0).goalx << ", " << pboard->at(0).goaly << endl;
+        cout << "Agent is at  " << robot.xpos << ", " << robot.ypos << endl;
         robot.eval(pboard);
         robot.check(pboard);
+
         
     }
     cout << "Winner" << endl;
+
 }
 
 void testC(int x, int y, vector<square>* pboard){
@@ -218,6 +224,7 @@ void testC(int x, int y, vector<square>* pboard){
         }
         cout << "Winner" << endl;
     }
+    
 }
 
 int main(){
