@@ -58,7 +58,7 @@ void agent::move(vector<square>* pboard){ // will accept movement commands
     if( input == 1){
         if(ypos <= pboard->front().y){
             cout << "*Cannot move down, at the bottom of the board" << endl;
-            ypos = pboard->front().y;
+            ypos = pboard->front().y;;
         }
         else{
             ypos -- ;
@@ -131,17 +131,17 @@ void agent::eval(vector<square>* pboard){
 }
 
 void createboard(vector<square>* pboard, int x, int y){
+
     square tsq;
-    tsq.goalx=3;//rand()%x;
-    tsq.goaly=4;//rand()%y;
+    tsq.goalx=rand()%10;//rand()%x;
+    tsq.goaly=rand()%10;//rand()%y;
     for(int i=0; i<x; i++){
         tsq.x=i;
-        pboard->push_back(tsq);
+        for( int j=0; j<y; j++){
+            tsq.y=j;
+            pboard->push_back(tsq);
+           
     }
-    for( int j=0; j<y; j++){
-        tsq.y=j;
-        pboard->push_back(tsq);
-        
     }
     //cout << pboard->front().x << "\t" << pboard->back().x << endl;
 }
@@ -152,11 +152,12 @@ int inputchoice(){ //user input choice
     cin >> input;
     return input;
 }
+void reset(vector<square>* pboard){
+    
+}
 
-void testA(int x, int y){
-    vector<square> board;
-    vector<square>* pboard = &board;
-    createboard(pboard, x, y);
+
+void testA(int x, int y, vector<square>* pboard){
     agent agenta;
     if(LYRAND > .5){
         agenta.ypos=rand()+pboard->back().y;
@@ -177,13 +178,11 @@ void testA(int x, int y){
     //need an assert?
 }
 
-void testB(int x, int y){
-    vector<square> board;
-    vector<square>* pboard = &board;
+void testB(int x, int y, vector<square>* pboard){
     agent robot;
-    createboard(pboard, x, y);
     bool notwinner = true;
     cout << "////// Test B, guide the robot to the goal" << endl;
+    //cout<< pboard->front().y << endl;
     while(notwinner != robot.win){
         robot.check(pboard);
         cout << " Goal coords are  " << pboard->at(0).goalx << ", " << pboard->at(0).goaly << endl;
@@ -194,29 +193,31 @@ void testB(int x, int y){
         robot.move(pboard);
         robot.eval(pboard);
         robot.check(pboard);
-
+        
     }
     cout << "Winner" << endl;
 }
 
-void testC(int x, int y){
-    vector<square> board;
-    vector<square>* pboard = &board;
+void testC(int x, int y, vector<square>* pboard){
+    int iterations=30;
     agent robot;
     createboard(pboard, x, y);
     bool notwinner = true;
     cout << "////// Test C, Robot will guide itself to the goal" << endl;
-    while(notwinner != robot.win){
-        robot.check(pboard);
-        robot.eval(pboard);
-        robot.input=robot.choice(pboard);
-        robot.move(pboard);
-        robot.eval(pboard);
-        robot.check(pboard);
-        cout << " Goal coords are  " << pboard->at(0).goalx << ", " << pboard->at(0).goaly << endl;
-        cout << "Agent is at  " << robot.xpos << ", " << robot.ypos << endl;
+    cout << "If robot is successful program will output 'winner', if robot fails, programs will not end" << endl;
+    for(int z=0; z<iterations; z++){
+        while(notwinner != robot.win){
+            robot.check(pboard);
+            robot.eval(pboard);
+            robot.input=robot.choice(pboard);
+            robot.move(pboard);
+            robot.eval(pboard);
+            robot.check(pboard);
+            //cout << " Goal coords are  " << pboard->at(0).goalx << ", " << pboard->at(0).goaly << endl;
+            //cout << "Agent is at  " << robot.xpos << ", " << robot.ypos << endl;
+        }
+        cout << "Winner" << endl;
     }
-    cout << "Winner" << endl;
 }
 
 int main(){
@@ -224,7 +225,11 @@ int main(){
     srand(time(NULL));
     int x=10;
     int y=10;
-    testA(x,y);
-    testB(x,y);
-    testC(x,y);
+    vector<square> board;
+    vector<square>* pboard = &board;
+    createboard(pboard, x, y);
+    
+    testA(x,y, pboard);
+    testB(x,y, pboard);
+    testC(x,y, pboard);
 }
